@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model deployments {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  application    String    @db.VarChar(100)
+  version        String    @db.VarChar(100)
+  environment    String    @db.VarChar(100)
+  status         String    @db.VarChar(100)
+  responsible    String    @db.VarChar(100)
+  commit_hash    String?   @db.VarChar(100)
+  commit_message String?
+  failure_reason String?
+  rollback       Boolean?  @default(false)
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+}

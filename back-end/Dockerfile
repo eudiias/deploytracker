@@ -6,6 +6,9 @@ WORKDIR /usr/src/app
 COPY package*.json tsconfig.json ./
 RUN npm ci
 
+COPY prisma ./prisma
+RUN npx prisma generate
+
 COPY src ./src
 RUN npm run build
 
@@ -16,7 +19,9 @@ ENV NODE_ENV=production
 WORKDIR /usr/src/app
 
 COPY --chown=node:node package*.json ./
+COPY --chown=node:node prisma ./prisma
 RUN npm ci --omit=dev && npm cache clean --force
+RUN npx prisma generate
 
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 
