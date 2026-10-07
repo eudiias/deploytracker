@@ -1,4 +1,13 @@
 services:
+  front-end:
+    build: ./front-end
+    container_name: my_frontend_container
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
   api:
     build: ./back-end
     container_name: my_api_container

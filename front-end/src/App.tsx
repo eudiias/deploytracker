@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Rocket, Activity, CheckCircle2, XCircle, Clock, Server, RefreshCw } from 'lucide-react';
 
 interface Deployment {
