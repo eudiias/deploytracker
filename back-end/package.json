@@ -2,14 +2,21 @@
   "name": "back-end",
   "version": "1.0.0",
   "description": "API simples com Express",
-  "main": "src/server.js",
+  "main": "dist/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "license": "MIT",
   "dependencies": {
     "dotenv": "^18.0.5",
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.4",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^7.0.2"
   }
 }

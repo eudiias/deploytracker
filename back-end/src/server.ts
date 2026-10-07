@@ -1,13 +1,12 @@
-require("dotenv").config();
-
-const express = require("express");
+import "dotenv/config";
+import express, { type Request, type Response } from "express";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/", (_req: Request, res: Response) => {
   res.json({
     status: "ok",
     message: "API funcionando!",
@@ -17,7 +16,7 @@ app.get("/", (req, res) => {
 });
 
 // Rotas não encontradas
-app.use((req, res) => {
+app.use((_req: Request, res: Response) => {
   res.status(404).json({ status: "error", message: "Rota não encontrada" });
 });
 
