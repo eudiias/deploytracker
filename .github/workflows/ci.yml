@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
@@ -20,11 +18,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+          cache-dependency-path: back-end/package-lock.json
 
       - name: Install dependencies
         working-directory: ./back-end
         run: npm ci
 
+      - name: Type check & build
+        working-directory: ./back-end
+        run: npm run build
+
+      - name: Validate docker-compose
+        run: docker compose config --quiet
+
       - name: Build Docker image
         run: docker build -t my_api_image ./back-end
-    
