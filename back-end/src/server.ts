@@ -2,6 +2,7 @@ import "dotenv/config";
 import express, { type Request, type Response } from "express";
 import cors from "cors";
 import { deploymentRoutes } from "./routes/deployment.routes";
+import { webhookRoutes } from "./routes/webhook.routes";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -19,6 +20,7 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 app.use("/deployments", deploymentRoutes);
+app.use("/webhooks", webhookRoutes);
 
 // Rotas não encontradas
 app.use((_req: Request, res: Response) => {
