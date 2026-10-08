@@ -1,0 +1,90 @@
+.commit-viewer-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 280px; /* Mantém um limite seguro para não quebrar a tabela */
+}
+
+.commit-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
+  color: var(--text-secondary); /* Usa a variável Dark */
+  font-size: 13px;
+}
+
+.commit-message-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.commit-message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+.commit-message.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; 
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.commit-message.expanded {
+  display: block;
+}
+
+.commit-expand-btn {
+  background: none;
+  border: none;
+  color: var(--accent); /* Accent Dark Mode */
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0 0 0;
+  margin-top: 2px;
+  align-self: flex-start;
+  transition: color 0.2s;
+}
+
+.commit-expand-btn:hover {
+  text-decoration: underline;
+  color: var(--accent-hover);
+}
+
+.empty-text {
+  font-style: italic;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.commit-branch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.commit-branch-badge.active {
+  background-color: rgba(59, 130, 246, 0.15); /* Fundo translúcido azul */
+  color: #60A5FA; /* Azul claro neon */
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.commit-branch-badge.detached {
+  background-color: rgba(245, 158, 11, 0.15); /* Fundo translúcido amarelo */
+  color: #FBBF24; /* Amarelo claro neon */
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}

@@ -1,20 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-color: #0b0f19;
-  --panel-bg: rgba(22, 28, 45, 0.6);
+  /* Premium Dark Mode Palette */
+  --bg-color: #0A0F1C; /* Fundo principal super escuro com tom azulado (evita fadiga do preto puro) */
+  --panel-bg: rgba(19, 27, 47, 0.7); /* Cards com fundo translúcido para efeito blur */
   --panel-border: rgba(255, 255, 255, 0.08);
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --accent: #3b82f6;
+  
+  --text-primary: #F8FAFC; /* Branco/Gelo para alto contraste */
+  --text-secondary: #94A3B8; /* Cinza claro para textos de apoio */
+  
+  /* Cores de Destaque Acessíveis (Dark Mode Friendly) */
+  --accent: #3B82F6; /* Azul brilhante (CTA e Links) */
+  --accent-hover: #2563EB;
   --accent-glow: rgba(59, 130, 246, 0.25);
   
-  --status-success: #10b981;
-  --status-success-bg: rgba(16, 185, 129, 0.1);
-  --status-error: #ef4444;
-  --status-error-bg: rgba(239, 68, 68, 0.1);
-  --status-pending: #f59e0b;
-  --status-pending-bg: rgba(245, 158, 11, 0.1);
+  --status-success: #34D399; /* Verde neon suave */
+  --status-success-bg: rgba(16, 185, 129, 0.15);
+  --status-error: #F87171; /* Vermelho claro */
+  --status-error-bg: rgba(239, 68, 68, 0.15);
+  --status-pending: #FBBF24; /* Amarelo/Dourado luminoso */
+  --status-pending-bg: rgba(245, 158, 11, 0.15);
 }
 
 * {
@@ -24,14 +29,15 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  /* Glows sutis no fundo para dar sensação de profundidade no modo escuro */
   background-image: 
-    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+    radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.06), transparent 30%),
+    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.06), transparent 30%);
   background-attachment: fixed;
 }
 
@@ -73,21 +79,22 @@ header {
 
 .stat-card {
   background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px); /* Efeito de vidro esfumaçado */
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--panel-border);
   border-radius: 16px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  gap: 0.75rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.4), 0 0 15px var(--accent-glow);
+  border-color: rgba(59, 130, 246, 0.3); /* Acende levemente a borda em azul */
 }
 
 .stat-title {
@@ -118,11 +125,12 @@ header {
 
 .table-container {
   background: var(--panel-bg);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--panel-border);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); /* Sombra mais profunda para a tabela */
 }
 
 table {
@@ -136,18 +144,20 @@ th, td {
 }
 
 th {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(0, 0, 0, 0.2); /* Mais escuro que o painel para separar o header */
   color: var(--text-secondary);
-  font-weight: 500;
-  font-size: 0.875rem;
+  font-weight: 600;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   border-bottom: 1px solid var(--panel-border);
 }
 
 td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03); /* Divisória super sutil */
   font-size: 0.95rem;
+  color: var(--text-primary);
+  transition: background-color 0.2s; /* Transição suave no hover da linha */
 }
 
 tr:last-child td {
@@ -155,7 +165,7 @@ tr:last-child td {
 }
 
 tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.03); /* Hover discreto iluminando a linha */
 }
 
 .status-badge {
@@ -191,30 +201,32 @@ tr:hover td {
 .environment-tag {
   display: inline-block;
   padding: 0.25rem 0.6rem;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   font-size: 0.8125rem;
-  color: #fff;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .btn-primary {
   background: var(--accent);
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Borda tátil */
   padding: 0.625rem 1.25rem;
   border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.875rem;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   transition: all 0.2s ease;
-  box-shadow: 0 0 15px var(--accent-glow);
+  box-shadow: 0 0 12px var(--accent-glow);
 }
 
 .btn-primary:hover {
-  background: #2563eb;
+  background: var(--accent-hover);
   transform: translateY(-2px);
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
 }

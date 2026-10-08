@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Rocket, Activity, CheckCircle2, XCircle, Clock, Server, RefreshCw } from 'lucide-react';
+import { CommitViewer } from './components/CommitViewer/CommitViewer';
 
 interface Deployment {
   id: string;
@@ -126,9 +127,16 @@ function App() {
                   </td>
                   <td>
                     {deploy.commit_hash ? (
-                      <span className="commit-hash" title={deploy.commit_message || ''}>
-                        {deploy.commit_hash.substring(0, 7)}
-                      </span>
+                      <CommitViewer 
+                        commit={{
+                          hash: deploy.commit_hash,
+                          message: deploy.commit_message,
+                          // Inferindo a branch apenas para fins visuais no Dashboard baseado no ambiente, 
+                          // já que a coluna `branch` não existe no banco de dados atualmente.
+                          branch: deploy.environment === 'production' ? 'main' : 
+                                  deploy.environment === 'development' ? 'develop' : undefined
+                        }} 
+                      />
                     ) : '-'}
                   </td>
                   <td>{deploy.responsible}</td>
