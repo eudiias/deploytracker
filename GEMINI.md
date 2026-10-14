@@ -12,7 +12,12 @@ Diagrama: `arquitetura.png`. README em português (idioma do projeto: **pt-BR** 
 - **Back-end** (`back-end/`): Node.js 22, Express 5, TypeScript, Prisma 6 (`prisma-client-js`), dotenv, cors. Scripts: `dev` (ts-node-dev), `build` (tsc), `start` (`node dist/server.js`).
 - **Front-end** (`front-end/`): React + Vite + TypeScript, lucide-react, CSS puro (dark mode, glassmorphism), servido por Nginx (`nginx.conf`). Lint com oxlint.
 - **Banco**: PostgreSQL 17, tabela criada por `postgresql/init.sql` (montado em `docker-entrypoint-initdb.d`), volume `pgdata`.
-- **Infra**: Docker Compose (3 serviços), CI no GitHub Actions.
+- **Infra & Observabilidade**:
+  - Docker Compose: 3 serviços base (`database`, `api`, `front-end`) + perfil `monitoring` com 6 serviços de observabilidade.
+  - CI no GitHub Actions.
+  - **Métricas**: Prometheus v3 (`:9090`), Node Exporter (`:9100`), cAdvisor (`:8085` no host para evitar colisão com o front-end).
+  - **Logs**: Loki v3 (`:3100`), Promtail v3 (coleta automática de contêineres Docker via socket `/var/run/docker.sock`).
+  - **Visualização**: Grafana 11 (`:3001` no host para evitar colisão com a API em `:3000`), com datasources Prometheus e Loki pré-provisionados.
 
 ### Detalhes de build e infraestrutura
 - **Versões**: back-end — `@prisma/client`/`prisma` ^6.19, express ^5.2, typescript ^7; front-end — react ^19.2, vite ^8, typescript ~6.0, lucide-react ^1.x. Scripts do front: `dev` (vite), `build` (`tsc -b && vite build`), `lint` (oxlint), `preview`. Front é ESM (`"type": "module"`); back compila para **CommonJS** (target es2022).
@@ -26,10 +31,10 @@ Diagrama: `arquitetura.png`. README em português (idioma do projeto: **pt-BR** 
 ## 3. Estrutura
 ```
 deploytracker/
-├── docker-compose.yml        # front-end:8080, api:3000, database:5432 (healthcheck pg_isready)
+├── docker-compose.yml        # front-end:8080, api:3000, database:5432 + profile "monitoring"
 ├── .env.example              # POSTGRES_*, DATABASE_URL, GITHUB_WEBHOOK_SECRET
 ├── postgresql/init.sql       # DDL da tabela deployments
-├── .github/workflows/ci.yml  # push/PR na main: npm ci, tsc build, docker compose config, docker build da API (só back-end)
+├── .github/workflows/ci.yml  # push/PR na main: npm ci, tsc build, docker compose config, docker build da API
 ├── back-end/
 │   ├── prisma/schema.prisma  # model deployments
 │   └── src/
@@ -37,9 +42,20 @@ deploytracker/
 │       ├── prisma.ts         # instância do PrismaClient
 │       ├── routes/           # deployment.routes.ts, webhook.routes.ts
 │       └── controllers/      # DeploymentController.ts, WebhookController.ts
-└── front-end/src/
-    ├── App.tsx               # dashboard: stats + tabela
-    └── components/CommitViewer/  # hash curto, badge de branch, mensagem com "Ler mais"
+├── front-end/src/
+│   ├── App.tsx               # dashboard: stats + tabela
+│   └── components/CommitViewer/  # hash curto, badge de branch, mensagem com "Ler mais"
+└── observability/            # Configurações da stack de observabilidade (profile "monitoring")
+    ├── prometheus/
+    │   └── prometheus.yml    # Scrape configs (prometheus, node-exporter, cadvisor, loki, promtail)
+    ├── loki/
+    │   └── loki-config.yaml  # Loki TSDB filesystem storage, retenção de 7 dias e compactor
+    ├── promtail/
+    │   └── promtail-config.yaml # Scrape de logs docker via /var/run/docker.sock
+    └── grafana/
+        └── provisioning/
+            └── datasources/
+                └── datasources.yaml # Provisionamento automático de Prometheus e Loki com data links
 ```
 
 ## 4. Modelo de dados (`deployments`)
@@ -75,11 +91,30 @@ deploytracker/
 - A branch exibida no `CommitViewer` é **inferida** do ambiente (production→main, development→develop), pois o banco não tem coluna `branch`.
 
 ## 7. Rodando
+
+### Aplicação Base (Deploy Tracker)
 ```bash
 cp .env.example .env   # preencher valores
 docker compose up -d --build
-# painel: http://localhost:8080 | API: http://localhost:3000
+# Painel: http://localhost:8080 | API: http://localhost:3000
 npx ngrok http 3000    # URL pública para o webhook
 ```
 GitHub → Settings → Webhooks: Payload URL `https://<ngrok>/webhooks/github`, `application/json`, evento push.
 
+### Observabilidade (Grafana, Prometheus, Loki, cAdvisor, Promtail, Node Exporter)
+A stack de observabilidade está integrada via perfil `monitoring`:
+```bash
+# Subir aplicação + stack de observabilidade completa:
+docker compose --profile monitoring up -d
+
+# Ou subir APENAS a observabilidade:
+docker compose --profile monitoring up -d prometheus loki promtail node-exporter cadvisor grafana
+```
+
+**Portas da Observabilidade:**
+- **Grafana:** `http://localhost:3001` (login: `admin` / senha: `admin_strong_observability_pwd`)
+- **Prometheus:** `http://localhost:9090`
+- **cAdvisor:** `http://localhost:8085` (mapeado na 8085 para não colidir com o front-end na 8080)
+- **Loki:** `http://localhost:3100`
+- **Node Exporter:** `http://localhost:9100`
+- **Promtail:** `http://localhost:9080`
