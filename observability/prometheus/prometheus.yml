@@ -29,3 +29,7 @@ scrape_configs:
     static_configs:
       - targets: ['promtail:9080']
 
+  # Coleta de métricas da API Express (Latência, Throughput e Disponibilidade)
+  - job_name: 'api'
+    static_configs:
+      - targets: ['api:3000']

@@ -9,13 +9,13 @@ Fluxo: `GitHub push → (Ngrok em dev) → POST /webhooks/github (API Express) �
 Diagrama: `arquitetura.png`. README em português (idioma do projeto: **pt-BR** para comentários, mensagens e UI parcial).
 
 ## 2. Stack
-- **Back-end** (`back-end/`): Node.js 22, Express 5, TypeScript, Prisma 6 (`prisma-client-js`), dotenv, cors. Scripts: `dev` (ts-node-dev), `build` (tsc), `start` (`node dist/server.js`).
+- **Back-end** (`back-end/`): Node.js 22, Express 5, TypeScript, Prisma 6 (`prisma-client-js`), prom-client (métricas Prometheus), dotenv, cors. Scripts: `dev` (ts-node-dev), `build` (tsc), `start` (`node dist/server.js`).
 - **Front-end** (`front-end/`): React + Vite + TypeScript, lucide-react, CSS puro (dark mode, glassmorphism), servido por Nginx (`nginx.conf`). Lint com oxlint.
 - **Banco**: PostgreSQL 17, tabela criada por `postgresql/init.sql` (montado em `docker-entrypoint-initdb.d`), volume `pgdata`.
 - **Infra & Observabilidade**:
   - Docker Compose: 3 serviços base (`database`, `api`, `front-end`) + perfil `monitoring` com 6 serviços de observabilidade.
   - CI no GitHub Actions.
-  - **Métricas**: Prometheus v3 (`:9090`), Node Exporter (`:9100`), cAdvisor (`:8085` no host para evitar colisão com o front-end).
+  - **Métricas**: Prometheus v3 (`:9090`), Node Exporter (`:9100`), cAdvisor (`:8085` no host para evitar colisão com o front-end), endpoint nativo da API em `/metrics`.
   - **Logs**: Loki v3 (`:3100`), Promtail v3 (coleta automática de contêineres Docker via socket `/var/run/docker.sock`).
   - **Visualização**: Grafana 11 (`:3001` no host para evitar colisão com a API em `:3000`), com datasources Prometheus e Loki pré-provisionados.
 
@@ -38,7 +38,8 @@ deploytracker/
 ├── back-end/
 │   ├── prisma/schema.prisma  # model deployments
 │   └── src/
-│       ├── server.ts         # app Express, cors, json, rotas, 404 JSON; GET / = health
+│       ├── server.ts         # app Express, cors, json, rotas, 404 JSON; GET / = health, GET /metrics
+│       ├── metrics.ts        # instrumentação com prom-client (histograma de latência e contadores HTTP)
 │       ├── prisma.ts         # instância do PrismaClient
 │       ├── routes/           # deployment.routes.ts, webhook.routes.ts
 │       └── controllers/      # DeploymentController.ts, WebhookController.ts
@@ -77,6 +78,7 @@ deploytracker/
 
 ## 5. API
 - `GET /` — health check.
+- `GET /metrics` — métricas Prometheus (`prom-client`): latência HTTP, throughput, status codes, métricas do Node.js.
 - `GET /deployments?application=&environment=&status=` — lista, ordenada por `created_at desc`.
 - `POST /deployments` — cria manualmente (body com os campos acima).
 - `POST /webhooks/github` — recebe webhook do GitHub:
